@@ -1,0 +1,21 @@
+1	sudo useradd -m -s /bin/bash bob
+2	sudo usermod -aG sudo bob
+3	sudo -u bob nano /home/bob/hostchange.bash
+4	#!/bin/bash
+# Script to change the hostname to "ubuntu22"
+
+# Change the hostname
+sudo hostnamectl set-hostname ubuntu22
+
+echo "Hostname changed to ubuntu22." 
+5	sudo chmod +x /home/bod/hostchange.bash
+6	sudo ls -la /home/bod/hostchange.bash
+7	sudo chown bob:bob /home/bob/hostchange.bash
+8	sudo /home/bob/hostchange.bash
+9	sudo reboot      
+10      su bob
+11      sudo apt update
+12      sudo apt install nginx -y
+13      systemctl status nginx
+14	sudo apt install net-tools
+15	sudo netstat -tulnp
