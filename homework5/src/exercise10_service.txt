@@ -1,0 +1,11 @@
+[Unit]
+Description=watch_Downloads Service
+After=network.target
+
+[Service]
+ExecStart=~/danit-hw/homework5/src/exercise10.sh
+Restart=always
+WorkingDirectory=/home/ivan/Downloads
+
+[Install]
+WantedBy=multi-user.target
