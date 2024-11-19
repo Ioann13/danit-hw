@@ -3,9 +3,11 @@ Description=watch_Downloads Service
 After=network.target
 
 [Service]
-ExecStart=~/danit-hw/homework5/src/exercise10.sh
+ExecStart=/home/ivan/danit-hw/homework5/src/exercise10.sh
 Restart=always
 WorkingDirectory=/home/ivan/Downloads
+User=ivan
+Environment=HOME=/home/ivan
 
 [Install]
 WantedBy=multi-user.target
