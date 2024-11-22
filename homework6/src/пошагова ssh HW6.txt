@@ -1,0 +1,27 @@
+sudo useradd -m -g sudo -s /bin/bash john
+ls /home
+ssh-keygen 
+
+sudo passwd john
+ssh-keygen
+прописати публічний ключ для john
+sudo nano /etc/ssh/sshd_config
+
+Port 2222
+
+PermitRootLogin no
+PasswordAuthentication no
+PubkeyAuthentication yes
+AllowUsers john
+sudo systemctl restart sshd
+
+sudo nano /etc/ssh/sshd_config_3333
+Port 3333
+PasswordAuthentication yes
+PubkeyAuthentication yes
+PermitRootLogin no
+sudo /usr/sbin/sshd -f /etc/ssh/sshd_config_3333 -d
+ssh -p 3333 your_user@<IP_адреса_сервера>
+sudo netstat -tulnpan
+
+sudo systemctl restart sshd
