@@ -1,0 +1,5 @@
+results.txt
+test_requests.py
+.dockerignor
+Dockerfile
+docker-compose.yml

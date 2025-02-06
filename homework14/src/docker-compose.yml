@@ -1,0 +1,27 @@
+services:
+  rest-api:
+    build: .
+    container_name: rest-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./students.csv:/app/students.csv
+    networks:
+      - my_network 
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - rest-api
+    networks:
+      - my_network
+  
+
+networks:
+  my_network:
+    driver: bridge
