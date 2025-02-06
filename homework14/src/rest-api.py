@@ -59,7 +59,15 @@ def get_students():
         return jsonify({'error': 'Students not found'}), 404
 
     return jsonify(data), 200
+# GET: Получить студента по ID
+@app.route('/students/<id>', methods=['GET'])
+def get_student_by_id(id):
+    data = read_csv()
+    student = next((s for s in data if s['id'] == id), None)
 
+    if student:
+        return jsonify(student), 200
+    return jsonify({'error': 'Student not found'}), 404
 
 # POST: Додати нового студента
 @app.route('/students', methods=['POST'])
