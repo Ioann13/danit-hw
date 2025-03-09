@@ -1,0 +1,61 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  # Конфигурация первой VM — Jenkins Master
+  config.vm.define "jenkins-master" do |master|
+    master.vm.box = "ubuntu/jammy64"
+    master.vm.hostname = "jenkins-master"
+    master.vm.network "private_network", ip: "192.168.45.111"
+    master.vm.network "forwarded_port", guest: 8080, host: 8080
+    master.vm.provider "virtualbox" do |vb|
+      vb.name = "jenkins-master"
+      vb.memory = "6114"  # Выделяем 6GB памяти
+      vb.cpus = 2
+    end
+    master.vm.provision "shell", inline: <<-SHELL
+      sudo apt update
+      sudo apt install -y default-jre openjdk-21-jdk docker.io
+      sudo usermod -aG docker vagrant  # Даём пользователю vagrant права Docker
+      # Установка Jenkins
+      sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+      echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+      sudo apt update
+      sudo apt install -y jenkins
+      sudo service jenkins restart
+      sudo systemctl enable --now jenkins  # Автозапуск Jenkins
+      sudo apt install -y docker.io docker-compose # установка докер
+      sudo usermod -aG docker jenkins
+
+      # Добавление публичного ключа для ed25519
+      echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMb0dVjLKzkJrzisFl7pCmXqL1EpvwuZ+aGEyk71uAfR marti@User" >> /home/vagrant/.ssh/authorized_keys
+    SHELL
+  end
+
+  # Конфигурация второй VM — Jenkins Slave
+  config.vm.define "jenkins-slave" do |slave|
+    slave.vm.box = "ubuntu/jammy64"
+    slave.vm.hostname = "jenkins-slave"
+    slave.vm.network "private_network", ip: "192.168.45.112"
+    slave.vm.provider "virtualbox" do |vb|
+      vb.name = "jenkins-slave"
+      vb.memory = "3048"
+      vb.cpus = 2
+    end
+    slave.vm.provision "shell", inline: <<-SHELL
+      sudo apt update
+      sudo apt install -y openjdk-21-jdk wget curl
+
+      # Создание пользователя jenkins
+      sudo useradd -m -s /bin/bash jenkins
+
+      sudo apt install -y docker.io docker-compose
+      sudo usermod -aG docker jenkins
+
+      # Добавление публичного ключа для ed25519
+      echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMb0dVjLKzkJrzisFl7pCmXqL1EpvwuZ+aGEyk71uAfR marti@User" >> /home/vagrant/.ssh/authorized_keys
+    SHELL
+  end
+
+end

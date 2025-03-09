@@ -1,0 +1,74 @@
+pipeline {
+    agent { 
+        label 'slave-node' 
+    }
+    parameters {
+       string(name: 'GIT_URL', defaultValue: 'git@github.com:Ioann13/Step-Project-2.git', description: 'URL for GitHub repository')
+       string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'Branch for GitHub repository')
+    }
+
+    environment {
+      DOCKER_IMAGE="deus666/step-project-2:latest"
+      DOCKER_REGISTRY_URL="https://registry.hub.docker.com/"
+      DOCKER_CREDENTIALS_ID="deus666"
+      CONTAINER_NAME="step-project2-container"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    git url: "${GIT_URL}",
+                        branch: "${GIT_BRANCH}",
+                        credentialsId: "jenkins"
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}")
+                }
+
+            }
+        }
+        
+        stage('Login') {
+            steps {
+                script {
+                    try {
+                         docker.withRegistry("${DOCKER_REGISTRY_URL}", "${DOCKER_CREDENTIALS_ID}") {
+                             echo "Logged in Docker Hub"
+                         }
+                    }
+                    catch (Exception e) {
+                        echo "Failed to login to Dockerhub"
+                        currentBuild.result = "FAILURE"
+                        error("Stopping pipeline execution due to Docker Login failure!")
+                    }
+                }
+
+            }
+        }        
+        
+        
+        stage('Run test push') {
+            steps {
+                script {
+                    try {
+                        echo "Running container ${CONTAINER_NAME} from image ${DOCKER_IMAGE}"
+                        sh "docker run -d --name ${CONTAINER_NAME} --rm -p 3000:3000 ${DOCKER_IMAGE} test"
+                        docker.withRegistry("${DOCKER_REGISTRY_URL}", "${DOCKER_CREDENTIALS_ID}") {
+                            docker.image("${DOCKER_IMAGE}").push()
+                        }
+                    } catch (Exception e) {
+                        echo "Exception message: ${e.message}"
+                        echo "Failed test"
+                    }
+                }
+            }
+        }        
+        
+        
+    }
+}
