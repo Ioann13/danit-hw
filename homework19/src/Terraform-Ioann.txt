@@ -1,0 +1,144 @@
+provider "aws" {
+  region = "eu-central-1"  
+  access_key = "ASIA2J4MHP4BGJ2QTZ5S"
+  secret_key = "1zT9gVu1Ww5SXZhqdgLC3Y1mNkYnCEIWITLJl+fp"
+  token = "IQoJb3JpZ2luX2VjEBIaDGV1LWNlbnRyYWwtMSJHMEUCICt+Csw1Omm9gaom/fAUawnDywNw9JkNtDsyjYI4bJB6AiEAkMku6FhIqW0R4ufacnBxEWC7lSDyr6C3nO7mgaSas2Aq+AEIi///////////ARAAGgw3MDg0MjY4MjU0NzQiDETngJ0RRsm+cEd0KyrMAf9/vpkvL47zgSdZUiG6hxB3FrvQRw8lmczQpNeDCoX7ml/tDUF1Wii0AYFs0bZm8vp6FxvdyLUOrg7CYf1ikVacqtOsRk1vGQE+MTlnCkW9PJeQyVkwyBsZguyAy976ShecjSDYyi309JiWfdsMzLz2qZUz0ccO2ZceqJQlTf/8Xp+mERA8Dzp3XisxwbZRCNPeD9hV/flNMh26w4w1gNx3TdzoaF+5q1EKg/1vB4wy4TW0KnGw2O27H8mys7Li44iYG+IbqmTGUWiO8jDahNm/BjqYARI2uAT1M2IDqqwg9Ilrt95yXHKf/rX01Z0uZHULbZ6HgB2OUQToCQCKq8i12a7v5YpLSfAjDPT50xR4mYF/lficdbVr1CTUeHzaY2fBVpKSIM1D5Q6IMl4HcjW4jnev7UFUE41DIB94C9LX6NI5xUMbIAl1sS1x9w1VVHblLsknulUAUQaBudgV8zJauU0VEPVnZ8o5+gYp"
+}
+
+# 1. Создание VPC
+resource "aws_vpc" "my_vpc" {
+  cidr_block = "10.0.0.0/16"
+}
+
+# 2. Публичная подсеть
+resource "aws_subnet" "public_subnet" {
+  vpc_id = aws_vpc.my_vpc.id
+  cidr_block = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+}
+
+# 3. Приватная подсеть
+resource "aws_subnet" "private_subnet" {
+  vpc_id = aws_vpc.my_vpc.id
+  cidr_block = "10.0.2.0/24"
+}
+
+# 4. Интернет-шлюз
+resource "aws_internet_gateway" "my_igw" {
+  vpc_id = aws_vpc.my_vpc.id
+}
+
+# 5. Таблица маршрутов для публичной подсети
+resource "aws_route_table" "public_route_table" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.my_igw.id
+  }
+}
+
+resource "aws_route_table_association" "public_subnet_association" {
+  subnet_id  = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_route_table.id
+}
+
+# 6. NAT-шлюз для приватного инстанса
+resource "aws_eip" "nat_eip" {
+  tags = {
+    Name = "Elastic IP for NAT Gateway"
+  }
+}
+
+resource "aws_nat_gateway" "my_nat_gateway" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id = aws_subnet.public_subnet.id
+}
+
+# 7. Таблица маршрутов для приватной подсети
+resource "aws_route_table" "private_route_table" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.my_nat_gateway.id
+  }
+}
+
+resource "aws_route_table_association" "private_subnet_association" {
+  subnet_id = aws_subnet.private_subnet.id
+  route_table_id = aws_route_table.private_route_table.id
+}
+
+# 8. Security Group для публичного EC2
+resource "aws_security_group" "public_sg" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# 9. Security Group для приватного EC2
+resource "aws_security_group" "private_sg" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    security_groups = [aws_security_group.public_sg.id]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# 10. Публичный EC2
+resource "aws_instance" "public_instance" {
+  ami = "ami-0bade3941f267d2b8"
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.public_subnet.id
+  key_name = "Ioann-frankfurd-Dan"
+  vpc_security_group_ids = [aws_security_group.public_sg.id]
+
+  tags = {
+    Name  = "Ioann-public"
+    Owner = "Ioann"
+  }
+}
+
+# 11. Приватный EC2
+resource "aws_instance" "private_instance" {
+  ami = "ami-0bade3941f267d2b8"
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.private_subnet.id
+  key_name = "Ioann-frankfurd-Dan"
+  vpc_security_group_ids = [aws_security_group.private_sg.id]
+
+  tags = {
+    Name  = "Ioann-private"
+    Owner = "Ioann"
+  }
+}
