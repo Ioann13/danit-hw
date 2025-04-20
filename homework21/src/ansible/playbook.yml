@@ -1,0 +1,58 @@
+---
+- name: HW21
+  hosts: web
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  tasks:
+    - name: Install docker using dnf
+      dnf:
+        name: docker
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Download and install Docker Compose V2
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v2.35.0/docker-compose-linux-x86_64"
+        dest: /usr/local/bin/docker-compose
+        mode: "755"
+
+    - name: Install python3-pip
+      dnf:
+        name: python3-pip
+        state: present
+
+    - name: Install Docker SDK for Python using pip3
+      pip:
+        name: docker
+        executable: pip3
+        extra_args: "--ignore-installed"
+
+    - name: Pull nginx image
+      docker_image:
+        name: "nginx:latest"
+        source: pull
+
+    - name: Create docker compose file
+      copy:
+        dest: /home/ec2-user/docker-compose.yml
+        content: |
+          services:
+            nginx:
+              image: nginx:latest
+              restart: always
+              ports: ["80:80"]
+        mode: "644"
+        owner: ec2-user
+
+    - name: Run Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: /home/ec2-user
