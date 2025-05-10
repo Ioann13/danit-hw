@@ -1,0 +1,16 @@
+---
+- name: Setup Jenkins Slave
+  hosts: jenkins_slave
+  become: true
+
+
+  tasks:
+    - name: Install required packages using dnf
+      dnf:
+        name:
+          - nginx
+          - java-21-amazon-corretto
+          - wget
+        state: present
+
+

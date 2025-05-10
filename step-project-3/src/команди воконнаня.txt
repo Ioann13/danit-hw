@@ -1,0 +1,53 @@
+	
+	
+1	aws sts get-session-token --serial-number arn:aws:iam::708426825474:mfa/Dan --token-code
+	
+2	terraform init
+3	terraform plan
+4	terraform apply
+	
+5	cp /mnt/c/devops/danit-hw/step-project-3/ioann-private.key ~/.ssh/ioann-private.key
+6	sudo chmod 400 /home/ioann/.ssh/ioann-private.key
+7	sudo nano /home/ioann/.ssh/config
+	
+8	ansible -m ping -i inventory all
+	
+9	ansible-playbook -i inventory jenkins-master.yml
+	
+10	ansible-playbook -i inventory jenkins-slave.yml
+	
+11	3.70.98.21:8080
+	
+12	ssh private-ec2
+	
+13	ssh public-ec2
+	
+14	curl -sO http://3.70.98.21:8080/jnlpJars/agent.jar
+	
+15	sudo java -jar agent.jar -url http://3.70.98.21:8080/ -secret f901276316fd227ef0450bf0c9a6a36d5eafee932fd1162288b055ceff7ee596 -name "ioann_jenkins_slave" -webSocket -workDir "/opt/jenkins"
+	
+16	ssh-keygen
+	
+17	sudo yum install docker -y
+18	sudo systemctl enable docker
+19	sudo systemctl start docker
+20	sudo systemctl status docker
+	
+21	ssh -T git@github.com
+	
+	
+	
+22	
+	sudo nano /usr/lib/systemd/system/jenkins.service
+	Найдите строку:
+	User=jenkins
+	Замените на:
+	User=root
+	Перезагрузите настройки systemd:
+	sudo systemctl daemon-reload
+	Перезапустите Jenkins
+	sudo systemctl restart jenkins
+	Убедитесь, что сервис запущен от root:
+	ps aux | grep jenkins
+	
+23	Настройка дженкинса , гитхаба и докера, ключей и паролей

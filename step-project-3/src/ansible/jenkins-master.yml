@@ -1,0 +1,61 @@
+---
+- name: Setup Jenkins Master and NGINX
+  hosts: jenkins_master
+  become: true
+  vars:
+    jenkins_repo_url: "https://pkg.jenkins.io/redhat-stable/jenkins.repo"
+    jenkins_gpg_key: "https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key"
+    jenkins_java_home: "/usr/lib/jvm/java-21-amazon-corretto"
+    
+  tasks:
+    - name: Install required packages using dnf
+      dnf:
+        name:
+          - nginx
+          - java-21-amazon-corretto
+          - wget
+        state: present
+
+    - name: Add Jenkins repository file
+      get_url:
+        url: "{{ jenkins_repo_url }}"
+        dest: /etc/yum.repos.d/jenkins.repo
+
+    - name: Import Jenkins GPG key
+      rpm_key:
+        state: present
+        key: "{{ jenkins_gpg_key }}"
+
+    - name: Install Jenkins using dnf
+      dnf:
+        name: jenkins
+        state: present
+        update_cache: yes
+
+    - name: Configure Jenkins to use Java 21
+      lineinfile:
+        path: /etc/sysconfig/jenkins
+        regexp: '^JAVA_HOME='
+        line: "JAVA_HOME={{ jenkins_java_home }}"
+        create: yes
+        backup: yes
+
+    - name: Start and enable Jenkins service
+      service:
+        name: jenkins
+        state: restarted
+        enabled: true
+
+    - name: Copy NGINX configuration file
+      copy:
+        src: default.conf
+        dest: /etc/nginx/conf.d/default.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Restart and enable NGINX service
+      service:
+        name: nginx
+        state: restarted
+        enabled: true
