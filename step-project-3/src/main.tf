@@ -73,24 +73,26 @@ resource "aws_instance" "hw-instance-public" {
 }
 
 
-#создали приватный инстанс
-resource "aws_instance" "hw-instance-private" {
+#создали приватный инстанс spot
+resource "aws_spot_instance_request" "hw-instance-private" {
   ami                    = data.aws_ami.amazon-linux.id
   instance_type          = "t3.medium"
   subnet_id              = module.vpc.private_subnet_ids[0]
   vpc_security_group_ids = [aws_security_group.ec2-sg.id]
   key_name               = aws_key_pair.ssh-key.key_name
+  spot_price             = "0.02"  # Максимальная цена за инстанс
+  wait_for_fulfillment   = true    # Ожидание выполнения запроса
 
-   root_block_device {
-    volume_size = 30      # розмер диска в ГБ
-    volume_type = "gp2"   # тип диска
+  root_block_device {
+    volume_size = 30
+    volume_type = "gp2"
   }
-
 
   tags = {
     Name  = "ioann Jenkins Slave"
     Owner = "Ioann"
     Role  = "jenkins-slave"
+    InstanceType = "spot"
   }
 }
 
