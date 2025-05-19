@@ -1,0 +1,17 @@
+1-Створи кластер
+  kind create cluster --config cluster-ioann.yml
+2-проврка
+  kind get clusters
+  kubectl cluster-info --context kind-cluster-ioann
+3-запуск пода
+  kubectl apply -f nginx-pod.yml
+4-запуск сервиса
+  kubectl apply -f nginx-service.yml  
+5-провеить поды и их адреса
+  kubectl get pod -o wide
+6-посмотреть адрес конкретного пода
+  kubectl get pod nginx-pod -o wide
+7-псмотртьв браузере http://localhost:8080
+  или curl http://localhost:8080
+8-удаить кластер 
+  kind delete cluster --name cluster-ioann
