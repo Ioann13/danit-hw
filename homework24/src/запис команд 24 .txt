@@ -18,7 +18,7 @@
      kubectl cluster-info
 
 7. створення secret docker-registry
-   kubectl create secret docker-registry regcred --docker-username=deus666 --docker-password=Deus1313$ --docker-email=you@example.com
+   kubectl create secret docker-registry regcred --docker-username=deus666 --docker-password=******* --docker-email=you@example.com
 
 8. проверка что секрет створився 
    kubectl get secrets 
