@@ -1,0 +1,47 @@
+1.git clone https://gitlab.com/dan-it/groups/devops_soft.git  -Клонування GitLab репозиторію
+
+2.робимо докер фаіл
+
+3. робимо .dockerignor
+
+4. робимо docker login
+
+4. робимо docker build -t deus666/homework24:latest .
+
+5. робимо docker push deus666/homework24:latest
+
+6. створити кластер kind
+   cd kind create cluster --config cluster-ioann.yml
+    проверить кластер
+     kind get clusters 
+    проверить кластер
+     kubectl cluster-info
+
+7. створення secret docker-registry
+   kubectl create secret docker-registry regcred --docker-username=deus666 --docker-password=Deus1313$ --docker-email=you@example.com
+
+8. проверка что секрет створився 
+   kubectl get secrets 
+
+9 потом apply
+  kubectl apply -f deployment.yml
+  kubectl apply -f service.yml
+
+  проверить nodes
+  kubectl get nodes
+
+  проверить pods
+  kubectl get pods --all-namespaces
+
+10 проверить что сервис створився
+  kubectl get svc
+ 
+11 перевірка застасунка
+   curl http://localhost:8080/
+
+12 перевірка болансування трафіка
+   1..10 | ForEach-Object { (Invoke-WebRequest http://localhost:8080/).Content; Start-Sleep -Milliseconds 300 }
+13 удалить кластер 
+   kind delete cluster --name cluster-ioann
+
+
