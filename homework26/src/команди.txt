@@ -1,0 +1,36 @@
+1 запуск виртуалки
+2 установка ssh
+   sudo apt update
+   sudo apt install -y openssh-server
+3 проверить статус ssh 
+   sudo systemctl status sshd
+4 подключение по ssh
+   ssh ioann@192.168.0.104 
+5 установить и запустить докер
+   sudo apt update
+   sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+   sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+   sudo apt update
+   sudo apt install -y docker-ce
+   sudo systemctl start docker
+   sudo systemctl enable docker  
+6 установить  докер компост
+   sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+   sudo chmod +x /usr/local/bin/docker-compose
+   docker-compose --version
+7 установить гит
+   sudo apt install -y git
+8 открыть порты 
+   sudo ufw allow 10000/tcp
+   sudo ufw allow 3000/tcp
+   sudo ufw allow 5601/tcp
+   sudo ufw allow 9200/tcp
+   sudo ufw allow 24224/tcp
+   sudo ufw reload
+
+9 добавить юзера в группу докер
+   sudo usermod -aG docker ioann
+
+10 запустить проект 
+    docker-compose up --build

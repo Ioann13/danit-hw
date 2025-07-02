@@ -1,21 +1,26 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: python-random-deployment
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: python-random
-  template:
-    metadata:
-      labels:
-        app: python-random
-    spec:
-      containers:
-      - name: python-random-container
-        image: deus666/homework24:latest
-        ports:
-        - containerPort: 8082
-      imagePullSecrets:
-      - name: regcred
+apiVersion: apps/v1  # Определяет API-версию Kubernetes, используемую для объекта Deployment.
+kind: Deployment  # Указывает, что этот объект - деплоймент, который управляет развертыванием подов.
+metadata:  # Метаинформация о деплойменте.
+  name: python-random-deployment  # Имя деплоймента в кластере Kubernetes.
+
+spec:  # Основная конфигурация деплоймента.
+  replicas: 3  # Указывает, сколько реплик подов будет запущено.
+  selector:  # Определяет критерии выбора подов, управляемых этим деплойментом.
+    matchLabels:  # Фильтр, который указывает, какие поды относятся к этому деплойменту.
+      app: python-random  # Подбирает поды, имеющие этот же лейбл в разделе labels.
+
+  template:  # Описывает шаблон пода, который будет создан.
+    metadata:  # Метаинформация о каждом создаваемом поде.
+      labels:  # Лейблы, которые помогут идентифицировать поды.
+        app: python-random  # Под будет маркирован этим лейблом, чтобы соответствовать selector.
+
+    spec:  # Спецификация для контейнеров внутри пода.
+      containers:  # Список контейнеров, которые будут запускаться в поде.
+      - name: python-random-container  # Имя контейнера внутри пода.
+        image: deus666/homework24:latest  # Docker-образ, который будет загружен для контейнера.
+        ports:  # Определяет порты, которые будут открыты в контейнере.
+        - containerPort: 8082  # Контейнер будет слушать на порту 8082.
+
+      imagePullSecrets:  # Секрет для загрузки образа из приватного контейнерного реестра.
+      - name: regcred  # Секрет должен быть предварительно создан в Kubernetes.
+
