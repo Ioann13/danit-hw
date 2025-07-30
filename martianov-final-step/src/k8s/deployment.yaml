@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: martianov-api
+  namespace: default
+  labels:
+    app: martianov-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: martianov-api
+  template:
+    metadata:
+      labels:
+        app: martianov-api
+    spec:
+      containers:
+      - name: martianov-api
+        image: deus666/martianov-backend:v01
+        ports:
+        - containerPort: 8080

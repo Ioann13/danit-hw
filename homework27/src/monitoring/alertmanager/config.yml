@@ -13,8 +13,8 @@ receivers:
       - bot_token: '7524537151:AAFo7Bjty_SM-8v2G-8S_cfQPxhPMkoSHUQ'
         chat_id: 522714412
         parse_mode: 'Markdown'
-        message: |
+        message: |-
           🔔 *Alert:* {{ .CommonLabels.alertname }}
           *Status:* {{ .Status }}
           *Severity:* {{ .CommonLabels.severity }}
-          *Description:* {{ .CommonAnnotations.summary }}
+          *Description:* {{ .Annotations.description }}

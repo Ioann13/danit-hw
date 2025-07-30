@@ -7,7 +7,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "Low disk space on /"
+        description: "Low disk space on /"
 
     - alert: CPUUsageHigh
       expr: (100 - avg(irate(node_cpu_seconds_total{mode="idle"}[1m])) * 100) > 80
@@ -15,7 +15,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "High CPU usage detected"
+        description: "High CPU usage detected"
 
     - alert: TargetDown
       expr: up == 0
@@ -23,7 +23,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "Prometheus target down"
+        description: "Prometheus target down"
 
     - alert: AlwaysFiringTest
       expr: vector(1)
@@ -31,4 +31,4 @@ groups:
       labels:
         severity: test
       annotations:
-        summary: "Test alert, always firing"
+        description: "Test alert, always firing"

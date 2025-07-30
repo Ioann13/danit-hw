@@ -1,0 +1,48 @@
+---
+# Source: argocd-application/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: app.martianov.devops7.test-danit.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: martianov-api
+                port:
+                  number: 80
+---
+# Source: argocd-application/templates/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-app
+  namespace: argocd
+  labels:
+    helm.sh/chart: argocd-application
+    app.kubernetes.io/name: argocd-application
+    app.kubernetes.io/instance: my-app
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+spec:
+  
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: k8s
+    repoURL: https://github.com/Ioann13/martianov-final-step
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
